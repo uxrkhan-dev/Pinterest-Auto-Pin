@@ -1,3 +1,6 @@
+
+
+
 (async function automatePinning() {
     let pinnedPosts = new Set(); // Track already pinned posts
     let totalPinned = 0;
@@ -111,3 +114,7 @@
     await pinPosts();
     console.log("✅ Script Completed!");
 })();
+
+
+
+
