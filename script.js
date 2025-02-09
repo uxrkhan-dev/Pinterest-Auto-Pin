@@ -1,11 +1,12 @@
-(async function quoraUpvoter() {
-    let upvotesDone = 0;
-    const maxUpvotes = 100;
+(async function automatePinning() {
+    let pinnedPosts = new Set(); // Track already pinned posts
+    let totalPinned = 0;
+    const maxPins = 100;
 
-    const upvoteSelector = '.q-click-wrapper.puppeteer_test_votable_upvote_button';
-    let upvotedPosts = new Set();
+    const postContainerSelector = 'div[role="button"].S9z.eEj.CCY.oCZ.Tbt.L4E.e8F.BG7';  // Clickable posts
+    const doneButtonSelector = '.RCK.Hsu.USg.adn.NTm.KhY.iyn.S9z.Vxj.aZc.pXK._co.Il7.hNT.BG7.hDj._O1.KS5.mQ8.Tbt.L4E';  // "Done" button
 
-    // Floating Counter Popup
+    // Floating Popup to Track Progress
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
     popup.style.bottom = '20px';
@@ -17,14 +18,14 @@
     popup.style.fontSize = '14px';
     popup.style.zIndex = '10000';
     popup.innerHTML = `
-        <h4>Quora Auto Upvoter</h4>
-        <p id="upvoteCount">Upvoted: 0</p>
+        <h4>Auto Pinner</h4>
+        <p id="pinCount">Pinned: 0</p>
         <p id="status">Status: Running...</p>
     `;
     document.body.appendChild(popup);
 
     function updatePopup() {
-        document.getElementById('upvoteCount').innerText = `Upvoted: ${upvotesDone}`;
+        document.getElementById('pinCount').innerText = `Pinned: ${totalPinned}`;
     }
 
     function updateStatus(text) {
@@ -35,50 +36,56 @@
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async function clickUpvoteButtons() {
+    async function clickElement(element, description, delay = 1000) {
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Scroll to the element
+            await waitFor(500);
+            element.click();
+            console.log(`✅ Clicked: ${description}`);
+            await waitFor(delay);
+            return true;
+        }
+        return false;
+    }
+
+    async function pinPosts() {
         let lastScrollHeight = 0;
         let scrollAttempts = 0;
 
-        while (upvotesDone < maxUpvotes) {
-            updateStatus("Looking for upvote buttons...");
-            let buttons = Array.from(document.querySelectorAll(upvoteSelector))
-                .filter(btn => !upvotedPosts.has(btn));
+        while (totalPinned < maxPins) {
+            updateStatus("Looking for posts to pin...");
+            let posts = Array.from(document.querySelectorAll(postContainerSelector)).filter(post => !pinnedPosts.has(post));
 
-            if (buttons.length === 0) {
+            if (posts.length === 0) {
                 scrollAttempts++;
-                console.log(`🔄 No new buttons found. Scrolling attempt: ${scrollAttempts}`);
+                console.log(`🔄 No new posts found. Scrolling attempt: ${scrollAttempts}`);
 
-                if (scrollAttempts >= 5) {
+                if (scrollAttempts >= 5) {  
                     updateStatus("Reloading page...");
-                    console.log("🔄 Reloading page due to lack of new buttons...");
+                    console.log("🔄 Reloading page due to lack of new posts...");
                     window.location.reload();
                     return;
                 }
 
-                window.scrollBy(0, 800);
+                window.scrollBy(0, 1000);
                 await waitFor(3000);
                 continue;
             }
 
-            scrollAttempts = 0; // Reset scroll attempts if new buttons found
+            scrollAttempts = 0; // Reset scroll attempts if new posts are found
 
-            for (let btn of buttons) {
-                if (upvotesDone >= maxUpvotes) break;
+            for (let post of posts) {
+                if (totalPinned >= maxPins) break;
 
-                upvotedPosts.add(btn);
-                btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                await waitFor(500);
-                btn.click();
-                console.log(`✅ Upvoted post #${upvotesDone + 1}`);
-
-                upvotesDone++;
+                pinnedPosts.add(post); // Mark as processed
+                await clickElement(post, "Pin post", 2000);
+                totalPinned++;
                 updatePopup();
 
                 await waitFor(2000);
             }
 
-            window.scrollBy(0, 800);
+            window.scrollBy(0, 1000);
             await waitFor(3000);
 
             if (document.documentElement.scrollHeight === lastScrollHeight) {
@@ -90,11 +97,17 @@
             lastScrollHeight = document.documentElement.scrollHeight;
         }
 
-        console.log("🎉 100 Upvotes Completed!");
-        updateStatus("Done!");
+        console.log("🎉 100 Pins Completed!");
+        updateStatus("Clicking Done...");
+        let doneButton = document.querySelector(doneButtonSelector);
+        if (doneButton) {
+            await clickElement(doneButton, "Done button", 2000);
+        } else {
+            console.log("❌ Done button not found!");
+        }
     }
 
-    console.log("🚀 Auto Upvoting Started...");
-    await clickUpvoteButtons();
+    console.log("🚀 Auto Pinning Started...");
+    await pinPosts();
     console.log("✅ Script Completed!");
 })();
