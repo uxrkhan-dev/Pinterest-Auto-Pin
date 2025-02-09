@@ -3,7 +3,7 @@
     let totalPinned = 0;
     const maxPins = 100;
 
-    const postContainerSelector = 'div[role="button"].S9z.eEj.CCY.oCZ.Tbt.L4E.e8F.BG7';  // Clickable posts
+    const postContainerSelector = 'div.S9z.eEj.iyn.oCZ.Tbt.L4E.e8F.BG7';  // Clickable posts
     const doneButtonSelector = '.RCK.Hsu.USg.adn.NTm.KhY.iyn.S9z.Vxj.aZc.pXK._co.Il7.hNT.BG7.hDj._O1.KS5.mQ8.Tbt.L4E';  // "Done" button
 
     // Floating Popup to Track Progress
