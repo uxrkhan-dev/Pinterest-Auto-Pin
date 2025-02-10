@@ -1,10 +1,10 @@
 (async function automatePinning() {
     let pinnedPosts = new Set(); // Track already pinned posts
     let totalPinned = 0;
-    const maxPins = 100;
+    const maxPins = 50;
 
     const postContainerSelector = 'div.S9z.eEj.iyn.oCZ.Tbt.L4E.e8F.BG7';  // Clickable posts
-    const doneButtonSelector = '.RCK.Hsu.USg.adn.NTm.KhY.iyn.S9z.Vxj.aZc.pXK._co.Il7.hNT.BG7.hDj._O1.KS5.mQ8.Tbt.L4E';  // "Done" button
+    const doneButtonSelector = '.RCK.Hsu.USg.adn.NTm.KhY.iyn.oRi.lnZ.wsz';  // "Done" button
 
     // Floating Popup to Track Progress
     const popup = document.createElement('div');
@@ -97,7 +97,7 @@
             lastScrollHeight = document.documentElement.scrollHeight;
         }
 
-        console.log("🎉 100 Pins Completed!");
+        console.log("🎉 50 Pins Completed!");
         updateStatus("Clicking Done...");
         let doneButton = document.querySelector(doneButtonSelector);
         if (doneButton) {
